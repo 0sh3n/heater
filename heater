@@ -1,0 +1,36 @@
+const int HEATER_PIN = 5;   // MOSFET gate
+const int BUTTON_PIN = 2;   // pushbutton
+const int LED_PIN    = 6;   // indicator LED
+
+int level = 0;
+const int pwmValues[] = {0, 90, 150, 210}; // OFF, LOW, MED, HIGH
+
+void setup() {
+  pinMode(HEATER_PIN, OUTPUT);
+  pinMode(BUTTON_PIN, INPUT_PULLUP);
+  pinMode(LED_PIN, OUTPUT);
+
+  analogWrite(HEATER_PIN, 0);
+  digitalWrite(LED_PIN, LOW);
+}
+
+void loop() {
+  static int lastButton = HIGH;
+  int button = digitalRead(BUTTON_PIN);
+
+  // Detect button press
+  if (lastButton == HIGH && button == LOW) {
+    level = (level + 1) % 4;   // Cycle 0→1→2→3→0
+    analogWrite(HEATER_PIN, pwmValues[level]);
+    delay(200); // debounce
+  }
+
+  lastButton = button;
+
+  // LED ON if heater level > 0
+  if (level > 0) {
+    digitalWrite(LED_PIN, HIGH);
+  } else {
+    digitalWrite(LED_PIN, LOW);
+  }
+}
